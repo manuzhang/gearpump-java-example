@@ -30,6 +30,10 @@ import io.gearpump.streaming.javaapi.StreamApplication;
 import io.gearpump.streaming.kafka.KafkaSink;
 import io.gearpump.streaming.kafka.KafkaSource;
 import io.gearpump.streaming.kafka.KafkaStorageFactory;
+import io.gearpump.streaming.kafka.lib.KafkaSourceConfig;
+import kafka.api.OffsetRequest;
+
+import java.util.Properties;
 
 public class PipelineApp {
 
@@ -41,8 +45,10 @@ public class PipelineApp {
 
     KafkaStorageFactory offsetStorageFactory = new KafkaStorageFactory("localhost:2181", "localhost:9092");
 
+    KafkaSourceConfig sourceConfig = new KafkaSourceConfig(new Properties())
+            .withConsumerStartOffset(OffsetRequest.LatestTime());
     // kafka source
-    KafkaSource kafkaSource = new KafkaSource("inputTopic", "localhost:2181", offsetStorageFactory);
+    KafkaSource kafkaSource = new KafkaSource("inputTopic", sourceConfig.consumerProps(), offsetStorageFactory);
     Processor sourceProcessor = Processor.source(kafkaSource, taskNumber, "kafkaSource",
         appConfig, context.system());
 
